@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BlackWhite — Gestão de Produtos & Vendas</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<style>
+  :root {
+    --bg: #0f0f0f;
+    --bg2: #1a1a1a;
+    --bg3: #222;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.14);
+    --text: #f0f0f0;
+    --text2: #aaa;
+    --text3: #666;
+    --accent: #c9a84c;
+    --accent2: #e8c96b;
+    --green: #3ecf8e;
+    --red: #f66;
+    --amber: #f0a500;
+    --purple: #a78bfa;
+    --teal: #2dd4bf;
+    --blue: #60a5fa;
+    --radius: 10px;
+    --radius-sm: 6px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; font-size: 14px; }
+
+  /* HEADER */
+  header { background: var(--bg2); border-bottom: 1px solid var(--border); padding: 0 2rem; display: flex; align-items: center; justify-content: space-between; height: 60px; position: sticky; top: 0; z-index: 100; }
+  .logo { display: flex; align-items: center; gap: 10px; }
+  .logo-hex { width: 32px; height: 32px; background: var(--accent); clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 13px; color: #000; }
+  .logo-text { font-size: 16px; font-weight: 700; letter-spacing: 0.05em; }
+  .logo-text span { color: var(--accent); }
+  .header-sup { font-size: 11px; color: var(--text3); }
+
+  /* TABS */
+  .tabs { display: flex; gap: 2px; padding: 0 2rem; background: var(--bg2); border-bottom: 1px solid var(--border); }
+  .tab { padding: 12px 20px; font-size: 13px; background: none; border: none; border-bottom: 2px solid transparent; cursor: pointer; color: var(--text2); display: flex; align-items: center; gap: 6px; transition: color .2s; white-space: nowrap; }
+  .tab:hover { color: var(--text); }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 500; }
+  .tab i { font-size: 16px; }
+
+  /* LAYOUT */
+  .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+  .section { display: none; }
+  .section.active { display: block; }
+
+  /* CARDS */
+  .card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1.25rem; }
+  .card-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 1.25rem; display: flex; align-items: center; gap: 8px; }
+  .card-title i { color: var(--accent); font-size: 18px; }
+
+  /* GRID */
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .form-grid.cols3 { grid-template-columns: 1fr 1fr 1fr; }
+  .form-group { display: flex; flex-direction: column; gap: 5px; }
+  .form-group.full { grid-column: 1 / -1; }
+  label { font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; }
+
+  /* INPUTS */
+  input, select, textarea {
+    background: var(--bg3); border: 1px solid var(--border2); border-radius: var(--radius-sm);
+    color: var(--text); font-family: inherit; font-size: 13px; padding: 8px 11px;
+    outline: none; transition: border-color .15s;
+  }
+  input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+  select option { background: var(--bg2); }
+  textarea { resize: vertical; min-height: 68px; }
+
+  /* BUTTONS */
+  .btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 18px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 500; cursor: pointer; font-family: inherit; border: none; transition: opacity .15s, transform .1s; }
+  .btn:active { transform: scale(.98); }
+  .btn-gold { background: var(--accent); color: #000; }
+  .btn-gold:hover { background: var(--accent2); }
+  .btn-outline { background: transparent; border: 1px solid var(--border2); color: var(--text2); }
+  .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-danger { background: transparent; border: 1px solid rgba(246,102,102,.3); color: var(--red); font-size: 12px; padding: 5px 9px; }
+  .btn-danger:hover { background: rgba(246,102,102,.1); }
+  .btn-sm { padding: 5px 11px; font-size: 12px; }
+  .actions { display: flex; gap: 10px; margin-top: 1.25rem; align-items: center; }
+
+  /* METRICS */
+  .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 1.5rem; }
+  .metric { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.1rem 1.25rem; }
+  .metric-label { font-size: 11px; color: var(--text3); font-weight: 600; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 6px; }
+  .metric-value { font-size: 26px; font-weight: 700; color: var(--text); line-height: 1; }
+  .metric-sub { font-size: 11px; color: var(--text3); margin-top: 5px; }
+  .metric-accent { border-top: 2px solid var(--accent); }
+
+  /* TABLE */
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: left; font-size: 10px; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: .07em; padding: 10px 12px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  td { padding: 11px 12px; border-bottom: 1px solid var(--border); color: var(--text); vertical-align: middle; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(255,255,255,.02); }
+
+  /* BADGES */
+  .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+  .badge-green { background: rgba(62,207,142,.15); color: var(--green); }
+  .badge-amber { background: rgba(240,165,0,.15); color: var(--amber); }
+  .badge-red { background: rgba(246,102,102,.15); color: var(--red); }
+  .badge-gray { background: rgba(255,255,255,.07); color: var(--text3); }
+  .badge-purple { background: rgba(167,139,250,.15); color: var(--purple); }
+  .badge-teal { background: rgba(45,212,191,.15); color: var(--teal); }
+  .badge-blue { background: rgba(96,165,250,.15); color: var(--blue); }
+  .badge-gold { background: rgba(201,168,76,.15); color: var(--accent); }
+
+  /* SERIE colors */
+  .serie-premium { color: var(--accent); font-size: 11px; font-weight: 600; }
+  .serie-menstyle { color: var(--teal); font-size: 11px; font-weight: 600; }
+  .serie-intense { color: var(--purple); font-size: 11px; font-weight: 600; }
+
+  /* FILTER ROW */
+  .filter-row { display: flex; gap: 8px; margin-bottom: 1rem; flex-wrap: wrap; align-items: center; }
+  .filter-row input, .filter-row select { font-size: 12px; padding: 6px 10px; }
+
+  /* VENDA ITEM */
+  .item-line { display: grid; grid-template-columns: 2fr 90px 90px 32px; gap: 8px; align-items: end; margin-bottom: 8px; }
+
+  /* CHART BAR */
+  .bar-row { margin-bottom: 10px; }
+  .bar-label { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px; }
+  .bar-label span:first-child { color: var(--text2); }
+  .bar-label span:last-child { font-weight: 600; color: var(--text); }
+  .bar-track { background: var(--bg3); border-radius: 3px; height: 6px; }
+  .bar-fill { height: 6px; border-radius: 3px; background: var(--accent); }
+
+  /* TOAST */
+  #toast { position: fixed; bottom: 1.5rem; right: 1.5rem; background: var(--accent); color: #000; padding: 10px 18px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 600; opacity: 0; transition: opacity .3s; pointer-events: none; z-index: 9999; }
+  #toast.show { opacity: 1; }
+
+  /* EMPTY */
+  .empty { text-align: center; padding: 3rem 1rem; color: var(--text3); }
+  .empty i { font-size: 32px; display: block; margin-bottom: 10px; }
+
+  /* TWO COL */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+
+  @media (max-width: 700px) {
+    .form-grid, .form-grid.cols3, .two-col { grid-template-columns: 1fr; }
+    .form-group.full { grid-column: 1; }
+    .container { padding: 1rem; }
+    .tabs { padding: 0 1rem; overflow-x: auto; }
+    header { padding: 0 1rem; }
+    .item-line { grid-template-columns: 1fr 70px 70px 32px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-hex">BW</div>
+    <div>
+      <div class="logo-text">Black<span>White</span></div>
+      <div class="header-sup">Gestão de Produtos & Vendas</div>
+    </div>
+  </div>
+  <div style="font-size:12px; color:var(--text3);" id="header-date"></div>
+</header>
+
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('produtos')"><i class="ti ti-package"></i> Produtos</button>
+  <button class="tab" onclick="switchTab('vendas')"><i class="ti ti-receipt"></i> Registrar venda</button>
+  <button class="tab" onclick="switchTab('historico')"><i class="ti ti-history"></i> Histórico</button>
+  <button class="tab" onclick="switchTab('dashboard')"><i class="ti ti-chart-bar"></i> Dashboard</button>
+</div>
+
+<!-- ===== PRODUTOS ===== -->
+<div id="tab-produtos" class="section active">
+<div class="container">
+
+  <div class="card">
+    <div class="card-title"><i class="ti ti-plus"></i> Adicionar produto</div>
+    <div class="form-grid cols3">
+      <div class="form-group"><label>Fornecedor</label><input id="f-forn" value="BlackWhite" /></div>
+      <div class="form-group"><label>Nome do produto</label><input id="f-nome" placeholder="Ex: Matte Clay" /></div>
+      <div class="form-group">
+        <label>Série</label>
+        <select id="f-serie">
+          <option value="">Selecionar...</option>
+          <option>Premium</option>
+          <option>MenStyle</option>
+          <option>Intense</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Categoria</label>
+        <select id="f-cat">
+          <option value="">Selecionar...</option>
+          <option>Pomada / Pasta</option>
+          <option>Shampoo / Condicionador</option>
+          <option>Barba — Tratamento</option>
+          <option>Barba — Modelagem</option>
+          <option>Leave-in / Óleo</option>
+          <option>Pó Texturizante</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Volume / Peso</label><input id="f-vol" placeholder="Ex: 150ml, 90g" /></div>
+      <div class="form-group">
+        <label>Unidade</label>
+        <select id="f-un">
+          <option value="un">Unidade (un)</option>
+          <option value="cx">Caixa (cx)</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Custo (R$)</label><input id="f-custo" type="number" step="0.01" min="0" placeholder="0,00" /></div>
+      <div class="form-group"><label>Preço de venda (R$)</label><input id="f-preco" type="number" step="0.01" min="0" placeholder="0,00" /></div>
+      <div class="form-group"><label>Estoque atual</label><input id="f-est" type="number" min="0" placeholder="0" /></div>
+      <div class="form-group"><label>Alerta estoque mínimo</label><input id="f-estmin" type="number" min="0" placeholder="3" /></div>
+      <div class="form-group full"><label>Observações</label><textarea id="f-obs" placeholder="Ingredientes principais, uso, etc."></textarea></div>
+    </div>
+    <div class="actions">
+      <button class="btn btn-gold" onclick="addProduto()"><i class="ti ti-plus"></i> Adicionar produto</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><i class="ti ti-list"></i> Catálogo <span style="font-size:12px;color:var(--text3);margin-left:6px;" id="prod-count"></span></div>
+    <div class="filter-row">
+      <input id="busca" placeholder="Buscar..." oninput="renderProdutos()" style="flex:1;min-width:100px;" />
+      <select id="f-serie-filtro" onchange="renderProdutos()">
+        <option value="">Todas as séries</option>
+        <option>Premium</option><option>MenStyle</option><option>Intense</option>
+      </select>
+      <select id="f-cat-filtro" onchange="renderProdutos()">
+        <option value="">Todas categorias</option>
+        <option>Pomada / Pasta</option>
+        <option>Shampoo / Condicionador</option>
+        <option>Barba — Tratamento</option>
+        <option>Barba — Modelagem</option>
+        <option>Leave-in / Óleo</option>
+        <option>Pó Texturizante</option>
+      </select>
+      <select id="f-status-filtro" onchange="renderProdutos()">
+        <option value="">Todos</option>
+        <option value="ativo">Ativo</option>
+        <option value="inativo">Inativo</option>
+        <option value="baixo">Estoque baixo</option>
+      </select>
+    </div>
+    <div class="table-wrap" id="prod-table"></div>
+  </div>
+
+</div>
+</div>
+
+<!-- ===== VENDAS ===== -->
+<div id="tab-vendas" class="section">
+<div class="container">
+
+  <div class="card">
+    <div class="card-title"><i class="ti ti-receipt"></i> Nova venda</div>
+    <div class="form-grid cols3">
+      <div class="form-group"><label>Data</label><input id="v-data" type="date" /></div>
+      <div class="form-group">
+        <label>Vendedor</label>
+        <select id="v-vendedor">
+          <option value="">Selecionar...</option>
+          <option>Clayton</option>
+          <option>Victor</option>
+          <option>Cauê</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Canal</label>
+        <select id="v-canal">
+          <option value="">Selecionar...</option>
+          <option>Balcão</option><option>Serviço (uso interno)</option><option>Encomenda</option><option>Outro</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Cliente / referência</label><input id="v-cliente" placeholder="Nome, mesa, pedido..." /></div>
+    </div>
+
+    <div style="margin-top:1.25rem;">
+      <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">Itens</div>
+      <div id="itens-wrap"></div>
+      <button class="btn btn-outline btn-sm" onclick="addItem()" style="margin-top:4px;"><i class="ti ti-plus"></i> Item</button>
+    </div>
+
+    <div id="v-total-wrap" style="display:none;margin-top:1.25rem;padding-top:1.25rem;border-top:1px solid var(--border);">
+      <span style="color:var(--text2);">Total:</span>
+      <span id="v-total" style="font-size:22px;font-weight:700;margin-left:10px;color:var(--accent);"></span>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-gold" onclick="salvarVenda()"><i class="ti ti-check"></i> Salvar venda</button>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ===== HISTÓRICO ===== -->
+<div id="tab-historico" class="section">
+<div class="container">
+  <div class="card">
+    <div class="card-title"><i class="ti ti-history"></i> Vendas registradas</div>
+    <div class="filter-row">
+      <input id="h-busca" placeholder="Buscar cliente, canal..." oninput="renderHistorico()" style="flex:1;" />
+      <input id="h-de" type="date" onchange="renderHistorico()" />
+      <input id="h-ate" type="date" onchange="renderHistorico()" />
+    </div>
+    <div class="table-wrap" id="hist-table"></div>
+  </div>
+</div>
+</div>
+
+<!-- ===== DASHBOARD ===== -->
+<div id="tab-dashboard" class="section">
+<div class="container">
+  <div class="metrics" id="metricas"></div>
+  <div class="two-col">
+    <div class="card">
+      <div class="card-title"><i class="ti ti-trending-up"></i> Top produtos por receita</div>
+      <div id="rank-prod"></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><i class="ti ti-tag"></i> Receita por categoria</div>
+      <div id="rank-cat"></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title"><i class="ti ti-alert-triangle"></i> Alertas de estoque</div>
+    <div id="alerta-estoque"></div>
+  </div>
+</div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ===== DADOS INICIAIS — produtos BlackWhite das fotos =====
+const PRODUTOS_INICIAIS = [
+  { id: 1, nome: 'Leave-in Protector Care', serie: 'Premium', categoria: 'Leave-in / Óleo', volume: '150ml', custo: 0, preco: 0, estoque: 0, estoqueMin: 3, obs: 'D-Panthenol, Vitamina E, Sunblock', ativo: true, fornecedor: 'BlackWhite' },
+  { id: 2, nome: 'Daily Beard Balm Care', serie: 'Premium', categoria: 'Barba — Tratamento', volume: '150ml', custo: 0, preco: 0, estoque: 0, estoqueMin: 3, obs: 'D-Panthenol, Vitamina E, Sunblock', ativo: true, fornecedor: 'BlackWhite' },
+  { id: 3, nome: 'Ultra Glow Paste', serie: 'Intense', categoria: 'Pomada / Pasta', volume: '160g', custo: 0, preco: 0, estoque: 0, estoqueMin: 3, obs: 'Efeito Molhado, Alta Fixação. Vitamina E, Filtro Solar. Essência Amber Wood', ativo: true, fornecedor: 'BlackWhite' },
+  { id: 4, nome: 'Matte Clay', serie: 'Premium', categoria: 'Pomada / Pasta', volume: '90g', custo: 0, preco: 0, estoque: 0, estoqueMin: 3, obs: 'Ultra Fixação, Definição Fosca. Vitamina E, Filtro Solar', ativo: true, fornecedor: 'BlackWhite' },
+  { id: 5, nome: 'Shaping Fibers', serie: 'Premium', categoria: 'Pomada / Pasta', volume: '90g', custo: 0, preco: 0, estoque: 0, estoqueMin: 3, obs: 'Fixação Natural, Baixo Brilho. Vitamina E, Filtro Solar', ativo: true, fornecedor: 'BlackWhite' },
+  { id: 6, nome: 'White Deluxe', serie: 'MenStyle', categoria: 'Pomada / Pasta', volume: '70g', custo: 0, preco: 0, estoque: 0, estoqueMin: 3, obs: 'Fixação Forte, Alto Brilho. Vitamina E, Filtro Solar', ativo: true, fornecedor: 'BlackWhite' },
+  { id: 7, nome: 'Ultra Heavy Hold', serie: 'Premium', categoria: 'Pomada / Pasta', volume: '90g', custo: 0, preco: 0, estoque: 0, estoqueMin: 3, obs: 'Alto Brilho, Máxima Fixação. Vitamina E, Filtro Solar', ativo: true, fornecedor: 'BlackWhite' },
+  { id: 8, nome: 'Leave-in Revitalizante', serie: 'MenStyle', categoria: 'Leave-in / Óleo', volume: '300ml', custo: 0, preco: 0, estoque: 0, estoqueMin: 3, obs: 'Vitamina E, Filtro Solar', ativo: true, fornecedor: 'BlackWhite' },
+  { id: 9, nome: 'Matte Paste', serie: 'Intense', categoria: 'Pomada / Pasta', volume: '160g', custo: 0, preco: 0, estoque: 0, estoqueMin: 3, obs: 'Efeito Matte, Alta Definição. Vitamina E, Filtro Solar. Essência Amber Wood', ativo: true, fornecedor: 'BlackWhite' },
+  { id: 10, nome: 'Matte Cream', serie: 'MenStyle', categoria: 'Pomada / Pasta', volume: '150g', custo: 0, preco: 0, estoque: 0, estoqueMin: 3, obs: 'Baixo Brilho, Texturização. Vitamina E, Filtro Solar', ativo: true, fornecedor: 'BlackWhite' },
+  { id: 11, nome: 'Styling Powder (Pó Texturizante)', serie: 'Premium', categoria: 'Pó Texturizante', volume: '15g', custo: 0, preco: 0, estoque: 0, estoqueMin: 3, obs: 'Matte Look, Texturizing', ativo: true, fornecedor: 'BlackWhite' },
+  { id: 12, nome: 'Moisturizing Beard Oil', serie: 'Premium', categoria: 'Leave-in / Óleo', volume: '30ml', custo: 0, preco: 0, estoque: 0, estoqueMin: 3, obs: 'Clove, Ginger, Brown Linseed', ativo: true, fornecedor: 'BlackWhite' },
+  { id: 13, nome: 'Condicionador Tonificante 2x1', serie: 'MenStyle', categoria: 'Shampoo / Condicionador', volume: '500ml', custo: 0, preco: 0, estoque: 0, estoqueMin: 3, obs: 'Alecrim, Cressatine, Jaborandi', ativo: true, fornecedor: 'BlackWhite' },
+  { id: 14, nome: 'Balm Tonificante Para Barba', serie: 'MenStyle', categoria: 'Barba — Tratamento', volume: '120ml', custo: 0, preco: 0, estoque: 0, estoqueMin: 3, obs: 'Alecrim, Cressatine, Jaborandi', ativo: true, fornecedor: 'BlackWhite' },
+  { id: 15, nome: 'Shampoo Anticaspa', serie: 'MenStyle', categoria: 'Shampoo / Condicionador', volume: '500ml', custo: 0, preco: 0, estoque: 0, estoqueMin: 3, obs: 'Piritionato de Zinco, Prelliance, Mentol. Eficácia comprovada', ativo: true, fornecedor: 'BlackWhite' },
+  { id: 16, nome: 'Shampoo Condicionante 3x1', serie: 'Intense', categoria: 'Shampoo / Condicionador', volume: '500ml', custo: 0, preco: 0, estoque: 0, estoqueMin: 3, obs: 'Cabelo, Barba & Corpo. Óleo de Zimbro, Essência Amber Wood', ativo: true, fornecedor: 'BlackWhite' },
+  { id: 17, nome: 'Loção Pós Barba', serie: 'MenStyle', categoria: 'Barba — Tratamento', volume: '500ml', custo: 0, preco: 0, estoque: 0, estoqueMin: 3, obs: 'Extrato de Calêndula', ativo: true, fornecedor: 'BlackWhite' },
+  { id: 18, nome: 'Bálsamo para Barbear', serie: 'MenStyle', categoria: 'Barba — Modelagem', volume: '500ml', custo: 0, preco: 0, estoque: 0, estoqueMin: 3, obs: 'Manteiga de Karité', ativo: true, fornecedor: 'BlackWhite' },
+  { id: 19, nome: 'Gel para Barbear', serie: 'MenStyle', categoria: 'Barba — Modelagem', volume: '500ml', custo: 0, preco: 0, estoque: 0, estoqueMin: 3, obs: 'Extrato de Calêndula', ativo: true, fornecedor: 'BlackWhite' },
+];
+
+// ===== STATE =====
+let produtos = JSON.parse(localStorage.getItem('bw_produtos') || 'null') || JSON.parse(JSON.stringify(PRODUTOS_INICIAIS));
+let vendas   = JSON.parse(localStorage.getItem('bw_vendas')   || '[]');
+let itens    = [{ prodId:'', qty:1, preco:0 }];
+
+function save() {
+  localStorage.setItem('bw_produtos', JSON.stringify(produtos));
+  localStorage.setItem('bw_vendas',   JSON.stringify(vendas));
+}
+
+// ===== TOAST =====
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ===== TABS =====
+function switchTab(tab) {
+  const names = ['produtos','vendas','historico','dashboard'];
+  document.querySelectorAll('.tab').forEach((el, i) => el.classList.toggle('active', names[i] === tab));
+  document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  if (tab === 'produtos')   renderProdutos();
+  if (tab === 'vendas')     { setDefaultDate(); renderItens(); }
+  if (tab === 'historico')  renderHistorico();
+  if (tab === 'dashboard')  renderDashboard();
+}
+
+// ===== HEADER DATE =====
+function updateDate() {
+  document.getElementById('header-date').textContent = new Date().toLocaleDateString('pt-BR', { weekday:'long', day:'2-digit', month:'long', year:'numeric' });
+}
+updateDate();
+
+// ===== SÉRIE BADGE =====
+function serieBadge(s) {
+  if (!s) return '';
+  const cls = s === 'Premium' ? 'badge-gold' : s === 'MenStyle' ? 'badge-teal' : 'badge-purple';
+  return `<span class="badge ${cls}">${s}</span>`;
+}
+
+// ===== ADD PRODUTO =====
+function addProduto() {
+  const nome = document.getElementById('f-nome').value.trim();
+  if (!nome) { toast('Preencha o nome do produto.'); return; }
+  const p = {
+    id: Date.now(),
+    nome,
+    fornecedor: document.getElementById('f-forn').value.trim() || 'BlackWhite',
+    serie: document.getElementById('f-serie').value,
+    categoria: document.getElementById('f-cat').value,
+    volume: document.getElementById('f-vol').value.trim(),
+    unidade: document.getElementById('f-un').value,
+    custo: parseFloat(document.getElementById('f-custo').value) || 0,
+    preco: parseFloat(document.getElementById('f-preco').value) || 0,
+    estoque: parseInt(document.getElementById('f-est').value) || 0,
+    estoqueMin: parseInt(document.getElementById('f-estmin').value) || 3,
+    obs: document.getElementById('f-obs').value.trim(),
+    ativo: true,
+  };
+  produtos.push(p);
+  save();
+  ['f-nome','f-vol','f-custo','f-preco','f-est','f-estmin','f-obs'].forEach(id => document.getElementById(id).value = '');
+  ['f-serie','f-cat'].forEach(id => document.getElementById(id).value = '');
+  renderProdutos(); toast('Produto adicionado!');
+}
+
+// ===== RENDER PRODUTOS =====
+function renderProdutos() {
+  const busca  = (document.getElementById('busca').value || '').toLowerCase();
+  const serie  = document.getElementById('f-serie-filtro').value;
+  const cat    = document.getElementById('f-cat-filtro').value;
+  const status = document.getElementById('f-status-filtro').value;
+
+  let lista = produtos.filter(p => {
+    if (busca && !p.nome.toLowerCase().includes(busca) && !(p.obs||'').toLowerCase().includes(busca)) return false;
+    if (serie && p.serie !== serie) return false;
+    if (cat   && p.categoria !== cat) return false;
+    if (status === 'ativo'   && !p.ativo) return false;
+    if (status === 'inativo' &&  p.ativo) return false;
+    if (status === 'baixo'   && !(p.ativo && p.estoque <= p.estoqueMin)) return false;
+    return true;
+  });
+
+  document.getElementById('prod-count').textContent = `(${lista.length} de ${produtos.length})`;
+
+  if (!lista.length) {
+    document.getElementById('prod-table').innerHTML = '<div class="empty"><i class="ti ti-package"></i>Nenhum produto encontrado</div>';
+    return;
+  }
+
+  let h = `<table><thead><tr>
+    <th>Produto</th><th>Série</th><th>Categoria</th><th>Volume</th>
+    <th>Custo</th><th>Venda</th><th>Margem</th><th>Estoque</th><th>Status</th><th></th>
+  </tr></thead><tbody>`;
+
+  lista.forEach(p => {
+    const margem = p.preco > 0 && p.custo > 0 ? ((p.preco - p.custo) / p.preco * 100).toFixed(0) + '%' : '—';
+    const baixo  = p.ativo && p.estoque <= p.estoqueMin;
+    const estBadge = p.estoque === 0 ? `<span class="badge badge-red">${p.estoque} un</span>`
+                   : baixo ? `<span class="badge badge-amber">${p.estoque} un</span>`
+                   : `${p.estoque} un`;
+    const statusBadge = !p.ativo ? `<span class="badge badge-gray">Inativo</span>`
+                      : baixo   ? `<span class="badge badge-amber"><i class="ti ti-alert-triangle" style="font-size:11px;"></i> Baixo</span>`
+                      : `<span class="badge badge-green">Ativo</span>`;
+
+    h += `<tr>
+      <td>
+        <div style="font-weight:600;color:var(--text);">${p.nome}</div>
+        ${p.obs ? `<div style="font-size:11px;color:var(--text3);margin-top:2px;">${p.obs.length > 50 ? p.obs.slice(0,50)+'…' : p.obs}</div>` : ''}
+      </td>
+      <td>${serieBadge(p.serie)}</td>
+      <td style="font-size:12px;color:var(--text2);">${p.categoria || '—'}</td>
+      <td style="font-size:12px;color:var(--text2);">${p.volume || '—'}</td>
+      <td>${p.custo > 0 ? 'R$ ' + p.custo.toFixed(2) : '<span style="color:var(--text3)">—</span>'}</td>
+      <td>${p.preco > 0 ? '<span style="color:var(--accent);font-weight:600;">R$ ' + p.preco.toFixed(2) + '</span>' : '<span style="color:var(--text3)">—</span>'}</td>
+      <td style="font-size:12px;">${margem}</td>
+      <td>${estBadge}</td>
+      <td>${statusBadge}</td>
+      <td style="white-space:nowrap;">
+        <button class="btn btn-outline btn-sm" onclick="editEstoque(${p.id})" title="Editar estoque/preço"><i class="ti ti-edit"></i></button>
+        <button class="btn btn-outline btn-sm" onclick="toggleAtivo(${p.id})" style="margin-left:4px;">${p.ativo ? 'Desativar' : 'Ativar'}</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteProduto(${p.id})" style="margin-left:4px;"><i class="ti ti-trash"></i></button>
+      </td>
+    </tr>`;
+  });
+
+  h += '</tbody></table>';
+  document.getElementById('prod-table').innerHTML = h;
+}
+
+function toggleAtivo(id) {
+  const p = produtos.find(x => x.id === id);
+  if (p) { p.ativo = !p.ativo; save(); renderProdutos(); }
+}
+
+function deleteProduto(id) {
+  if (!confirm('Remover produto?')) return;
+  produtos = produtos.filter(x => x.id !== id);
+  save(); renderProdutos();
+}
+
+function editEstoque(id) {
+  const p = produtos.find(x => x.id === id);
+  if (!p) return;
+  const novoEst  = prompt(`Estoque atual de "${p.nome}":`, p.estoque);
+  if (novoEst === null) return;
+  const novoCusto = prompt('Custo (R$):', p.custo);
+  if (novoCusto === null) return;
+  const novoPreco = prompt('Preço de venda (R$):', p.preco);
+  if (novoPreco === null) return;
+  p.estoque = parseInt(novoEst) || 0;
+  p.custo   = parseFloat(novoCusto) || 0;
+  p.preco   = parseFloat(novoPreco) || 0;
+  save(); renderProdutos(); toast('Produto atualizado!');
+}
+
+// ===== VENDAS =====
+function setDefaultDate() {
+  const d = document.getElementById('v-data');
+  if (!d.value) d.value = new Date().toISOString().split('T')[0];
+}
+
+function renderItens() {
+  const ativos = produtos.filter(p => p.ativo);
+  let h = '';
+  itens.forEach((item, i) => {
+    const opts = ativos.map(p =>
+      `<option value="${p.id}" ${p.id == item.prodId ? 'selected' : ''}>${p.nome} — ${p.serie || ''}${p.volume ? ' ('+p.volume+')' : ''} · R$${p.preco.toFixed(2)}</option>`
+    ).join('');
+    h += `<div class="item-line">
+      <div class="form-group"><label>Produto</label><select onchange="updateItem(${i},'prodId',this.value)"><option value="">Selecionar...</option>${opts}</select></div>
+      <div class="form-group"><label>Qtd</label><input type="number" value="${item.qty}" min="1" step="1" onchange="updateItem(${i},'qty',this.value)" /></div>
+      <div class="form-group"><label>Preço unit.</label><input type="number" value="${item.preco.toFixed(2)}" step="0.01" onchange="updateItem(${i},'preco',this.value)" /></div>
+      <button class="btn btn-danger" onclick="removeItem(${i})" style="margin-bottom:1px;align-self:end;"><i class="ti ti-x"></i></button>
+    </div>`;
+  });
+  document.getElementById('itens-wrap').innerHTML = h;
+  calcTotal();
+}
+
+function updateItem(i, field, val) {
+  if (field === 'prodId') {
+    itens[i].prodId = parseInt(val) || '';
+    const p = produtos.find(x => x.id == val);
+    if (p) itens[i].preco = p.preco;
+  } else if (field === 'qty')   { itens[i].qty   = parseInt(val) || 1; }
+  else if (field === 'preco')   { itens[i].preco = parseFloat(val) || 0; }
+  renderItens();
+}
+
+function addItem()    { itens.push({ prodId:'', qty:1, preco:0 }); renderItens(); }
+function removeItem(i){ itens.splice(i, 1); if (!itens.length) itens = [{ prodId:'', qty:1, preco:0 }]; renderItens(); }
+
+function calcTotal() {
+  const total = itens.reduce((s, i) => s + i.qty * i.preco, 0);
+  const wrap = document.getElementById('v-total-wrap');
+  document.getElementById('v-total').textContent = 'R$ ' + total.toFixed(2);
+  wrap.style.display = total > 0 ? 'block' : 'none';
+}
+
+function salvarVenda() {
+  const data    = document.getElementById('v-data').value;
+  const canal   = document.getElementById('v-canal').value;
+  const cliente = document.getElementById('v-cliente').value.trim();
+  const validos = itens.filter(i => i.prodId && i.qty > 0);
+  if (!data || !validos.length) { toast('Preencha data e ao menos um produto.'); return; }
+  const total = validos.reduce((s, i) => s + i.qty * i.preco, 0);
+  vendas.push({ id: Date.now(), data, canal, cliente, itens: validos.map(i => ({ ...i })), total });
+  validos.forEach(item => {
+    const p = produtos.find(x => x.id == item.prodId);
+    if (p) p.estoque = Math.max(0, p.estoque - item.qty);
+  });
+  save();
+  itens = [{ prodId:'', qty:1, preco:0 }];
+  document.getElementById('v-cliente').value = '';
+  document.getElementById('v-canal').value = '';
+  renderItens(); toast('Venda salva! Estoque atualizado.');
+}
+
+// ===== HISTÓRICO =====
+function renderHistorico() {
+  const busca = (document.getElementById('h-busca').value || '').toLowerCase();
+  const de    = document.getElementById('h-de').value;
+  const ate   = document.getElementById('h-ate').value;
+
+  let lista = [...vendas].reverse().filter(v => {
+    if (busca && !(v.cliente||'').toLowerCase().includes(busca) && !(v.canal||'').toLowerCase().includes(busca)) return false;
+    if (de  && v.data < de)  return false;
+    if (ate && v.data > ate) return false;
+    return true;
+  });
+
+  if (!lista.length) {
+    document.getElementById('hist-table').innerHTML = '<div class="empty"><i class="ti ti-receipt"></i>Nenhuma venda encontrada</div>';
+    return;
+  }
+
+  let h = `<table><thead><tr><th>Data</th><th>Canal</th><th>Cliente</th><th>Itens</th><th>Total</th><th></th></tr></thead><tbody>`;
+  lista.forEach(v => {
+    const nomes = v.itens.map(i => {
+      const p = produtos.find(x => x.id == i.prodId);
+      return (p ? p.nome : 'Removido') + ` ×${i.qty}`;
+    }).join(', ');
+    h += `<tr>
+      <td>${v.data.split('-').reverse().join('/')}</td>
+      <td><span class="badge badge-gray">${v.canal || '—'}</span></td>
+      <td style="color:var(--text2);font-size:12px;">${v.cliente || '—'}</td>
+      <td style="font-size:12px;color:var(--text2);max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${nomes}</td>
+      <td style="font-weight:700;color:var(--accent);">R$ ${v.total.toFixed(2)}</td>
+      <td><button class="btn btn-danger btn-sm" onclick="deleteVenda(${v.id})"><i class="ti ti-trash"></i></button></td>
+    </tr>`;
+  });
+  h += '</tbody></table>';
+  document.getElementById('hist-table').innerHTML = h;
+}
+
+function deleteVenda(id) {
+  if (!confirm('Remover venda?')) return;
+  vendas = vendas.filter(v => v.id !== id);
+  save(); renderHistorico();
+}
+
+// ===== DASHBOARD =====
+function renderDashboard() {
+  const totalRec  = vendas.reduce((s, v) => s + v.total, 0);
+  const nVendas   = vendas.length;
+  const ticket    = nVendas > 0 ? totalRec / nVendas : 0;
+  const ativos    = produtos.filter(p => p.ativo).length;
+  const baixo     = produtos.filter(p => p.ativo && p.estoque <= p.estoqueMin).length;
+
+  document.getElementById('metricas').innerHTML = `
+    <div class="metric metric-accent">
+      <div class="metric-label">Receita total</div>
+      <div class="metric-value">R$ ${totalRec.toFixed(2)}</div>
+      <div class="metric-sub">todas as vendas</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Nº de vendas</div>
+      <div class="metric-value">${nVendas}</div>
+      <div class="metric-sub">registradas</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Ticket médio</div>
+      <div class="metric-value">R$ ${ticket.toFixed(2)}</div>
+      <div class="metric-sub">por venda</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Produtos ativos</div>
+      <div class="metric-value">${ativos}</div>
+      <div class="metric-sub">${baixo > 0 ? `<span style="color:var(--amber)">${baixo} com estoque baixo</span>` : 'estoque ok'}</div>
+    </div>
+  `;
+
+  // top produtos
+  const porProd = {};
+  vendas.forEach(v => v.itens.forEach(i => {
+    const p = produtos.find(x => x.id == i.prodId);
+    const nome = p ? p.nome : 'Removido';
+    if (!porProd[nome]) porProd[nome] = 0;
+    porProd[nome] += i.qty * i.preco;
+  }));
+  const topProd = Object.entries(porProd).sort((a,b) => b[1]-a[1]).slice(0,8);
+  const maxP = topProd[0]?.[1] || 1;
+  document.getElementById('rank-prod').innerHTML = topProd.length
+    ? topProd.map(([nome, val]) => `
+        <div class="bar-row">
+          <div class="bar-label"><span>${nome}</span><span>R$ ${val.toFixed(2)}</span></div>
+          <div class="bar-track"><div class="bar-fill" style="width:${Math.round(val/maxP*100)}%"></div></div>
+        </div>`).join('')
+    : '<div class="empty" style="padding:1.5rem"><i class="ti ti-chart-bar"></i>Sem dados</div>';
+
+  // top categorias
+  const porCat = {};
+  vendas.forEach(v => v.itens.forEach(i => {
+    const p = produtos.find(x => x.id == i.prodId);
+    const cat = p?.categoria || 'Outro';
+    if (!porCat[cat]) porCat[cat] = 0;
+    porCat[cat] += i.qty * i.preco;
+  }));
+  const topCat = Object.entries(porCat).sort((a,b) => b[1]-a[1]);
+  const colors = ['var(--accent)','var(--teal)','var(--purple)','var(--blue)','var(--green)','var(--amber)'];
+  const maxC = topCat[0]?.[1] || 1;
+  document.getElementById('rank-cat').innerHTML = topCat.length
+    ? topCat.map(([cat, val], i) => `
+        <div class="bar-row">
+          <div class="bar-label"><span>${cat}</span><span>R$ ${val.toFixed(2)}</span></div>
+          <div class="bar-track"><div class="bar-fill" style="width:${Math.round(val/maxC*100)}%;background:${colors[i%colors.length]}"></div></div>
+        </div>`).join('')
+    : '<div class="empty" style="padding:1.5rem"><i class="ti ti-tag"></i>Sem dados</div>';
+
+  // alertas
+  const alertas = produtos.filter(p => p.ativo && p.estoque <= p.estoqueMin);
+  if (!alertas.length) {
+    document.getElementById('alerta-estoque').innerHTML = '<div class="empty" style="padding:1.5rem"><i class="ti ti-circle-check" style="color:var(--green);"></i>Todos os produtos com estoque adequado</div>';
+    return;
+  }
+  let ah = `<table><thead><tr><th>Produto</th><th>Série</th><th>Volume</th><th>Estoque atual</th><th>Mínimo</th><th>Status</th></tr></thead><tbody>`;
+  alertas.forEach(p => {
+    const s = p.estoque === 0 ? `<span class="badge badge-red">Zerado</span>` : `<span class="badge badge-amber">Baixo</span>`;
+    ah += `<tr><td><strong>${p.nome}</strong></td><td>${serieBadge(p.serie)}</td><td>${p.volume||'—'}</td><td>${p.estoque} un</td><td>${p.estoqueMin} un</td><td>${s}</td></tr>`;
+  });
+  ah += '</tbody></table>';
+  document.getElementById('alerta-estoque').innerHTML = ah;
+}
+
+// ===== INIT =====
+renderProdutos();
+setDefaultDate();
+renderItens();
+</script>
+</body>
+</html>
